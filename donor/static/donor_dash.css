@@ -1,0 +1,207 @@
+:root {
+    --blood-red: #d32f2f;
+    --light-red: #ffebee;
+    --dark-gray: #343a40;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-header {
+    background-color: white;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--blood-red);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.profile-item {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.profile-label {
+    font-weight: 600;
+    min-width: 180px;
+    color: var(--dark-gray);
+}
+
+.blood-group {
+    font-weight: 700;
+    color: var(--blood-red);
+}
+
+.eligibility {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.eligible {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.not-eligible {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.donation-table {
+    width: 100%;
+}
+
+.donation-table th {
+    background-color: var(--light-red);
+    color: var(--blood-red);
+}
+
+.btn-blood {
+    background-color: var(--blood-red);
+    color: white;
+    font-weight: 600;
+}
+
+.btn-blood:hover {
+    background-color: #b71c1c;
+    color: white;
+}
+
+.appointment-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    background-color: #fff8e1;
+    color: #ff8f00;
+}
+
+.status-confirmed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-cancelled {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+@media (max-width: 768px) {
+    .profile-item {
+        flex-direction: column;
+    }
+
+    .profile-label {
+        margin-bottom: 0.25rem;
+    }
+}
+
+.donation-form-container {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.btn-donate {
+    background-color: #d32f2f;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-donate:hover {
+    background-color: #b71c1c;
+}
+
+/* for msges */
+.alert-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 350px;
+    width: 100%;
+}
+
+.alert {
+    position: relative;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    transform: translateX(0);
+    display: flex;
+    align-items: center;
+}
+
+/* Different message type colors */
+.alert-success {
+    background-color: #4ead51; /* Green */
+    border-left: 5px solid #388E3C;
+}
+
+.alert-error {
+    background-color: #F44336; /* Red */
+    border-left: 5px solid #D32F2F;
+}
+
+.alert-info {
+    background-color: #2196F3; /* Blue */
+    border-left: 5px solid #1976D2;
+}
+
+.alert-warning {
+    background-color: #FFC107; /* Amber */
+    color: #212529;
+    border-left: 5px solid #FFA000;
+}
+
+/* Fade out animation */
+.alert.fade-out {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* Close button */
+.alert-close {
+    margin-left: auto;
+    padding-left: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #b71c1c;
+}

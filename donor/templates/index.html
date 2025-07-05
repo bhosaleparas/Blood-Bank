@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+<style>
+    .alert-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 350px;
+    width: 100%;
+}
+
+.alert {
+    position: relative;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    transform: translateX(0);
+    display: flex;
+    align-items: center;
+}
+
+/* Different message type colors */
+.alert-success {
+    background-color: #46da4b; /* Green */
+    border-left: 5px solid #388E3C;
+}
+
+.alert-error {
+    background-color: #F44336; /* Red */
+    border-left: 5px solid #D32F2F;
+}
+
+.alert-info {
+    background-color: #2196F3; /* Blue */
+    border-left: 5px solid #1976D2;
+}
+
+.alert-warning {
+    background-color: #FFC107; /* Amber */
+    color: #212529;
+    border-left: 5px solid #FFA000;
+}
+
+/* Fade out animation */
+.alert.fade-out {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* Close button */
+.alert-close {
+    margin-left: auto;
+    padding-left: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #b71c1c;
+}
+</style>
+
+{% if messages %}
+            <div class="alert-messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+{% endif %}
+
+<!-- Main Content -->
+<main class="container-fluid">
+    {% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Save Lives, Donate Blood</h1>
+        <p>Join our community of blood donors and help us maintain a steady supply of blood for those in need. Your
+            single donation can save up to three lives.</p>
+        <a href="#" id="donor-link" class="cta-button">Become a Donor</a>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <h2>Why Choose Our Blood Bank?</h2>
+        <div class="features-container">
+            <div class="feature-card">
+                <div class="feature-icon">💉</div>
+                <h3>Easy Donation</h3>
+                <p>Simple registration process and convenient donation centers make it easy to donate blood.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🩸</div>
+                <h3>24/7 Availability</h3>
+                <p>Our blood bank ensures blood is available whenever and wherever it's needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">❤️</div>
+                <h3>Save Lives</h3>
+                <p>Your donation can help accident victims, surgery patients, and those with chronic illnesses.</p>
+            </div>
+        </div>
+    </section>
+    {% endblock %}
+</main>
+
+

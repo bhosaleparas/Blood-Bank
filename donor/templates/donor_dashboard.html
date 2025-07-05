@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeBlood - Donor Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/donor_dash.css">
+
+</head>
+
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-tint me-2" style="color: var(--blood-red);"></i> Donor Dashboard</h2>
+                <div>
+                    <span class="me-3">Welcome, <strong>{{ donor.name }}</strong></span>
+                    <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+            <div class="alert-messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+    {% endif %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <!-- Profile Overview -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-user me-2"></i> Profile Overview
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-item">
+                            <span class="profile-label">Name:</span>
+                            <span>{{ donor.name }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Email:</span>
+                            <span>{{ donor.email }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Phone:</span>
+                            <span>{{ donor.phone }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Blood Group:</span>
+                            <span class="blood-group">{{ donor.blood_group }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Date of Birth:</span>
+                            <span>{{ donor.date_of_birth|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Last Donation:</span>
+                                <span>
+                                    {% if last_donation_date %}
+                                        {{ last_donation_date|date:"M d, Y" }}
+                                    {% else %}
+                                        Never donated
+                                    {% endif %}
+                                </span>
+                        </div>
+                        <div class="profile-item">
+                            <span class="profile-label">Next Eligible:</span>
+                                <span class="eligibility {% if is_eligible %}eligible{% else %}not-eligible{% endif %}">
+                                    {% if next_eligible_date and not is_eligible %}
+                                        {{ next_eligible_date|date:"M d, Y" }}
+                                    {% else %}
+                                        Eligible now
+                                    {% endif %}
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt me-2"></i> Quick Actions
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-sm mb-2 w-100">
+                            <i class="fas fa-edit me-1"></i> Edit Profile
+                        </a>
+                        <a href="#" class="btn btn-outline-success btn-sm mb-2 w-100">
+                            <i class="fas fa-share-alt me-1"></i> Share Your Story
+                        </a>
+                        <a href="#" class="btn btn-outline-info btn-sm w-100">
+                            <i class="fas fa-question-circle me-1"></i> Get Help
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-8">
+                <!-- Donate Blood Button and Form -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-tint me-2"></i> Donate Blood
+                    </div>
+                    <div class="card-body">
+                        <button id="donate-blood-btn" class="btn-donate">
+                            <i class="fas fa-heartbeat me-1"></i> Donate Blood Now
+                        </button>
+                        <div id="donation-form-container" class="donation-form-container">
+                            <form method="post" action="{% url 'record_donation' %}">
+                                {% csrf_token %}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="donation_id" class="form-label">Donation ID</label>
+                                        <input type="text" class="form-control" id="donation_id" name="donation_id"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="blood_amount" class="form-label">Amount (ml)</label>
+                                        <input type="number" class="form-control" id="blood_amount" name="blood_amount"
+                                            min="300" max="500" required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="blood_type" class="form-label">Blood Type</label>
+                                        <select class="form-select" id="blood_type" name="blood_type" required>
+                                            <option value="" selected disabled>Select blood type</option>
+                                            <option value="A+">A+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="B-">B-</option>
+                                            <option value="AB+">AB+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="O+">O+</option>
+                                            <option value="O-">O-</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="donation_date" class="form-label">Donation Date</label>
+                                        <input type="date" class="form-control" id="donation_date" name="donation_date"
+                                            required>
+                                    </div>
+                                
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="city" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="city" name="city" placeholder="Location" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="hospital" class="form-label">Hospital Name</label>
+                                        <input type="text" class="form-control" id="hospital" name="hospital" placeholder="Hospital Name" required>
+                                    </div>
+                                </div>
+                                
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn btn-blood">
+                                            <i class="fas fa-check me-1"></i> Submit Donation
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <button type="button" id="cancel-donation" class="btn btn-outline-secondary">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- {% if not donor.is_eligible %}
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            You will be eligible to donate on {{ donor.next_eligible_date|date:"M d, Y" }}
+                        </div>
+                        {% endif %} -->
+                    </div>
+                </div>
+
+                <!-- Donation History -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2"></i> Donation History
+                    </div>
+                    <div class="card-body">
+                        {% if donations %}
+                        <div class="table-responsive">
+                            <table class="table donation-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Units</th>
+                                        <th>Location</th>
+                                        <th>Hospital</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donation in donations %}
+                                    <tr>
+                                        <td>{{ donation.donation_date|date:"M d, Y" }}</td>
+                                        <td>{{ donation.amount_donated }}</td>
+                                        <td>{{ donation.city }}</td>
+                                        <td>{{ donation.hospital_name}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tint fa-3x mb-3" style="color: #eee;"></i>
+                            <p class="text-muted">You haven't donated yet. Your first donation will appear here.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-calendar-alt me-2"></i> Your Appointments
+                    </div>
+                    <div class="card-body">
+                        {% if appointments %}
+                        <div class="list-group">
+                            {% for appointment in appointments %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ appointment.date|date:"l, M d, Y" }}</h6>
+                                        <small class="text-muted">
+                                            {{ appointment.get_time_slot_display }} at {{
+                                            appointment.get_location_display }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <span class="appointment-status status-{{ appointment.status|lower }}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                        {% if appointment.status == 'PENDING' or appointment.status == 'CONFIRMED' %}
+                                        <form method="post" action="{% url 'cancel_appointment' appointment.id %}"
+                                            class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar fa-3x mb-3" style="color: #eee;"></i>
+                            <p class="text-muted">You don't have any upcoming appointments.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+       
+        document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0];
+
+        // Disable past dates in date picker
+        document.getElementById('appointment_date').addEventListener('change', function () {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+                alert("Please select a future date");
+                this.value = '';
+            }
+        });
+    </script>
+
+     <script>
+        // Toggle donation form visibility
+        const donateBtn = document.getElementById('donate-blood-btn');
+        const donationForm = document.getElementById('donation-form-container');
+        const cancelBtn = document.getElementById('cancel-donation');
+        
+        donateBtn.addEventListener('click', function() {
+            donationForm.style.display = donationForm.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        cancelBtn.addEventListener('click', function() {
+            donationForm.style.display = 'none';
+        });
+        
+        // Set default blood type to donor's blood type
+        document.getElementById('blood_type').value = "{{ donor.blood_group }}";
+        
+        // Disable donate button if not eligible
+        {% if donor.is_eligible %}
+        donateBtn.disabled = true;
+        donateBtn.style.opacity = "0.6";
+        donateBtn.style.cursor = "not-allowed";
+        {% endif %}
+    </script>
+
+
+    <!-- this is for messges -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.alert');
+    
+    messages.forEach(message => {
+        //close button
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'alert-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', () => {
+            fadeOutMessage(message);
+        });
+        message.appendChild(closeBtn);
+        
+        // fade out after 4 seconds
+        const fadeTimer = setTimeout(() => {
+            fadeOutMessage(message);
+        }, 4000);
+        
+        // Pause timer on hover
+        message.addEventListener('mouseenter', () => {
+            clearTimeout(fadeTimer);
+        });
+        
+        // Resume timer 
+        message.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                fadeOutMessage(message);
+            }, 1000);
+        });
+    });
+    
+    function fadeOutMessage(message) {
+        if (!message.classList.contains('fade-out')) {
+            message.classList.add('fade-out');
+            
+            setTimeout(() => {
+                message.remove();
+            }, 500);
+        }
+    }
+});
+</script>
+
+
+    
+</body>
+
+</html>
