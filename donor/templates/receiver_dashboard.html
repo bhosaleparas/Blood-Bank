@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeBlood - Receiver Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --blood-red: #d32f2f;
+            --light-red: #ffebee;
+            --dark-gray: #343a40;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-header {
+            background-color: white;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--blood-red);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .status-approved {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-fulfilled {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .btn-blood {
+            background-color: var(--blood-red);
+            color: white;
+            border: none;
+        }
+
+        .btn-blood:hover {
+            background-color: #b71c1c;
+            color: white;
+        }
+
+        .search-form .form-control,
+        .search-form .form-select {
+            height: 45px;
+        }
+
+
+
+        /* for msges */
+        .alert-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .alert {
+            position: relative;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transform: translateX(0);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Different message type colors */
+        .alert-success {
+            background-color: #4ead51;
+            /* Green */
+            border-left: 5px solid #388E3C;
+        }
+
+        .alert-error {
+            background-color: #F44336;
+            /* Red */
+            border-left: 5px solid #D32F2F;
+        }
+
+        .alert-info {
+            background-color: #2196F3;
+            /* Blue */
+            border-left: 5px solid #1976D2;
+        }
+
+        .alert-warning {
+            background-color: #FFC107;
+            /* Amber */
+            color: #212529;
+            border-left: 5px solid #FFA000;
+        }
+
+        /* Fade out animation */
+        .alert.fade-out {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        /* Close button */
+        .alert-close {
+            margin-left: auto;
+            padding-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #b71c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Dashboard Header -->
+
+
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+               <h2> <i class="fa-solid fa-house"  style="color: var(--blood-red);"></i> <a href="{% url 'index' %}" class="btn btn-sm btn-outline-danger">Home</a></h2>
+                <h2><i class="fas fa-tint me-2" style="color: var(--blood-red);"></i> Receiver Dashboard</h2>
+                <div>
+                    <span class="me-3">Welcome, <strong>{{ name}}</strong></span>
+                    <a href="{% url 'receiver_logout' %}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <div class="container">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-4">
+                <!-- Search Blood Availability -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-search me-2"></i> Search Blood Availability
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" action="{% url 'search_blood' %}" class="search-form">
+                            <div class="mb-3">
+                                <label for="blood_group" class="form-label">Blood Group</label>
+                                <select class="form-select" id="blood_group" name="blood_group">
+                                    <!-- <option value="">Any</option> -->
+                                    <option value="" selected disabled>Select blood group</option>
+                                    {% for code, name in blood_groups %}
+                                    <option value="{{ code }}">{{ name }}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city" placeholder="Enter city">
+                            </div>
+                            <div class="mb-3">
+                                <label for="hospital" class="form-label">Hospital/Blood Bank</label>
+                                <input type="text" class="form-control" id="hospital" name="hospital"
+                                    placeholder="Enter hospital name">
+                            </div>
+                            <button type="submit" class="btn btn-blood w-100">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Make Blood Request -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-plus-circle me-2"></i> Make Blood Request
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'make_blood_request' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="request_blood_group" class="form-label">Blood Group Needed</label>
+                                <select class="form-select" id="request_blood_group" name="blood_group" required>
+                                    <option value="" selected disabled>Select blood group</option>
+                                    {% for code, name in blood_groups %}
+                                    <option value="{{ code }}">{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity (units)</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" min="1"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">Reason</label>
+                                <textarea class="form-control" id="reason" name="reason" rows="3"
+                                    placeholder="e.g., surgery, emergency" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="request_hospital" class="form-label">Hospital Name</label>
+                                <input type="text" class="form-control" id="request_hospital" name="hospital" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="request_city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="request_city" name="city" required>
+                            </div>
+                            <button type="submit" class="btn btn-blood w-100">
+                                <i class="fas fa-paper-plane me-1"></i> Submit Request
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-8">
+                <!-- Search Results -->
+                {% if search_performed %}
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-list me-2"></i> Search Results
+                    </div>
+                    <div class="card-body">
+                        {% if search_results %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Blood Group</th>
+                                        <th>Units Available</th>
+                                        <th>Location</th>
+                                        <th>City</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stock in search_results %}
+                                    <tr>
+                                        <td>{{ stock.get_blood_group_display }}</td>
+                                        <td>{{ stock.units_available }}</td>
+                                        <td>{{ stock.location }}</td>
+                                        <td>{{ stock.city }}</td>
+                                        <td>{{ stock.last_updated|timesince }} ago</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            No blood stock found matching your criteria.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Blood Requests -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="fas fa-history me-2"></i> Your Blood Requests
+                    </div>
+                    <div class="card-body">
+                        {% if blood_requests %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <!-- <th>Request ID</th> -->
+                                        <th>Blood Group</th>
+                                        <th>Quantity</th>
+                                        <!-- <th>Status</th> -->
+                                        <th>Hospital</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for req in blood_requests %}
+                                    <tr>
+                                        <!-- <td>#{{ req.id }}</td> -->
+                                        <td>{{ req.get_blood_group_display }}</td>
+                                        <td>{{ req.quantity }} units</td>
+                                        <td>{{ req.hospital }}</td>
+                                        <td>{{ req.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ req.status|lower }}">
+                                                {{ req.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if req.status == 'PENDING' %}
+                                            <form method="post" action="{% url 'cancel_request' req.id %}"
+                                                style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit"
+                                                    onclick="return confirm('Are you sure you want to cancel this request?')">Cancel</button>
+                                            </form>
+                                            {% else %}
+                                            <span style="color: gray;">N/A</span>
+                                            {% endif %}
+                                        </td>
+
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert-danger">
+                            You haven't made any blood requests yet.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- this is for messges -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.alert');
+
+            messages.forEach(message => {
+                //close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'alert-close';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.addEventListener('click', () => {
+                    fadeOutMessage(message);
+                });
+                message.appendChild(closeBtn);
+
+                // fade out after 4 seconds
+                const fadeTimer = setTimeout(() => {
+                    fadeOutMessage(message);
+                }, 4000);
+
+                // Pause timer on hover
+                message.addEventListener('mouseenter', () => {
+                    clearTimeout(fadeTimer);
+                });
+
+                // Resume timer 
+                message.addEventListener('mouseleave', () => {
+                    setTimeout(() => {
+                        fadeOutMessage(message);
+                    }, 1000);
+                });
+            });
+
+            function fadeOutMessage(message) {
+                if (!message.classList.contains('fade-out')) {
+                    message.classList.add('fade-out');
+
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

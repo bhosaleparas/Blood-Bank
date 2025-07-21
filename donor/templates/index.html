@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
 <style>
-    .alert-messages {
+   
+/* for msges */
+.alert-messages {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -26,7 +28,7 @@
 
 /* Different message type colors */
 .alert-success {
-    background-color: #46da4b; /* Green */
+    background-color: #4ead51; /* Green */
     border-left: 5px solid #388E3C;
 }
 
@@ -61,6 +63,7 @@
     font-size: 1.2em;
     color: #b71c1c;
 }
+
 </style>
 
 {% if messages %}
@@ -109,3 +112,47 @@
 </main>
 
 
+ <!-- this is for messges -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.alert');
+    
+    messages.forEach(message => {
+        //close button
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'alert-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', () => {
+            fadeOutMessage(message);
+        });
+        message.appendChild(closeBtn);
+        
+        // fade out after 4 seconds
+        const fadeTimer = setTimeout(() => {
+            fadeOutMessage(message);
+        }, 4000);
+        
+        // Pause timer on hover
+        message.addEventListener('mouseenter', () => {
+            clearTimeout(fadeTimer);
+        });
+        
+        // Resume timer 
+        message.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                fadeOutMessage(message);
+            }, 1000);
+        });
+    });
+    
+    function fadeOutMessage(message) {
+        if (!message.classList.contains('fade-out')) {
+            message.classList.add('fade-out');
+            
+            setTimeout(() => {
+                message.remove();
+            }, 500);
+        }
+    }
+});
+</script>

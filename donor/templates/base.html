@@ -96,51 +96,6 @@
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const messages = document.querySelectorAll('.alert');
-    
-    messages.forEach(message => {
-        // Add close button
-        const closeBtn = document.createElement('span');
-        closeBtn.className = 'alert-close';
-        closeBtn.innerHTML = '&times;';
-        closeBtn.addEventListener('click', () => {
-            fadeOutMessage(message);
-        });
-        message.appendChild(closeBtn);
-        
-        const fadeTimer = setTimeout(() => {
-            fadeOutMessage(message);
-        }, 4000);
-        
-        // Pause timer on hover
-        message.addEventListener('mouseenter', () => {
-            clearTimeout(fadeTimer);
-        });
-        
-        // Resume timer when mouse leaves
-        message.addEventListener('mouseleave', () => {
-            setTimeout(() => {
-                fadeOutMessage(message);
-            }, 1000);
-        });
-    });
-    
-    function fadeOutMessage(message) {
-        if (!message.classList.contains('fade-out')) {
-            message.classList.add('fade-out');
-            
-            // Remove element after fade out completes
-            setTimeout(() => {
-                message.remove();
-            }, 500);
-        }
-    }
-});
-</script>
     
     {% block extra_js %}{% endblock %}
 </body>
