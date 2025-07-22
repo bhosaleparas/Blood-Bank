@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Search Results</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background-color: #d32f2f;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .btn-blood {
+            background-color: #d32f2f;
+            color: white;
+            font-weight: 500;
+        }
+        .btn-blood:hover {
+            background-color: #b71c1c;
+            color: white;
+        }
+        .table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .back-button {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Back button -->
+        <div class="back-button">
+            <a href="{% url 'receiver_dashboard' %}" class="btn btn-blood">
+                <i class="fas fa-arrow-left me-1"></i> Back to Search
+            </a>
+        </div>
+
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Search Results -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i> Search Results
+            </div>
+            <div class="card-body">
+                {% if blood_stocks %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Blood Group</th>
+                                <th>Units Available</th>
+                                <th>Hospital/Blood Bank</th>
+                                <th>City</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in blood_stocks %}
+                            <tr>
+                                <td>{{ stock.get_blood_type_display }}</td>
+                                <td>{{ stock.units_available }}</td>
+                                <td>{{ stock.hospital_name }}</td>
+                                <td>{{ stock.city }}</td>
+                                <td>{{ stock.last_updated|timesince }} ago</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No blood stock found matching your criteria.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

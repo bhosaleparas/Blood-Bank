@@ -432,7 +432,7 @@ def search_blood(request):
         if not blood_stocks.exists():
             messages.info(request, "No matching blood stock found.")
 
-    return render(request, 'receiver_dashboard.html',  {
+    return render(request, 'blood_search.html',  {
         'blood_stocks': blood_stocks,
         'blood_groups': blood_groups,
     })
