@@ -47,13 +47,13 @@ cd bloodbank
 
 ```
 ### 2.Create a Virtual Environment (Windows)
+```bash
 python -m venv venv
 venv\Scripts\activate
-# For Linux/macOS
-# python3 -m venv venv
-# source venv/bin/activate
 
+```
 ### 3.Install Dependencies
+```bash
 pip install -r requirements.txt
 
 ```
