@@ -42,6 +42,7 @@ This is a Django-based web application that manages blood donations and requests
 
 # 1.Clone the Repo
 git clone https://github.com/bhosaleparas/Blood-Bank.git
+<br>
 cd bloodbank
 
 # 2.Create a Virtual Environment (Windows)
