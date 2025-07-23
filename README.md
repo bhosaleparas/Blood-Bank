@@ -41,24 +41,14 @@ This is a Django-based web application that manages blood donations and requests
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/bhosaleparas/Blood-Bank.git
 cd bloodbank
 
-
-2. Create a Virtual Environment
-Windows:
-
-bash
-Copy
-Edit
+```
+### 2.Create a Virtual Environment
+```bash
 python -m venv venv
 venv\Scripts\activate
-Linux/macOS:
 
-bash
-Copy
-Edit
-python3 -m venv venv
-source venv/bin/activate
+
