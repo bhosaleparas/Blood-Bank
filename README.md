@@ -40,7 +40,7 @@ This is a Django-based web application that manages blood donations and requests
 
 ## 🚀 Getting Started
 
-### 1. Clone the Repo
+1. Clone the Repo
 ```bash
 git clone https://github.com/bhosaleparas/Blood-Bank.git
 cd bloodbank
