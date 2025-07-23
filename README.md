@@ -45,3 +45,20 @@ This is a Django-based web application that manages blood donations and requests
 ```bash
 git clone https://github.com/bhosaleparas/Blood-Bank.git
 cd bloodbank
+
+
+2. Create a Virtual Environment
+Windows:
+
+bash
+Copy
+Edit
+python -m venv venv
+venv\Scripts\activate
+Linux/macOS:
+
+bash
+Copy
+Edit
+python3 -m venv venv
+source venv/bin/activate
