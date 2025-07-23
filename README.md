@@ -51,4 +51,21 @@ cd bloodbank
 python -m venv venv
 venv\Scripts\activate
 
+```
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+
+```
+### 4. Run Migrations
+```bash
+python manage.py makemigrations
+python manage.py migrate
+
+```
+### 5. Run the Server
+```bash
+python manage.py runserver
+
+
 
