@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../static/index.css">
 </head>
+
 <body>
     <nav>
         <div class="logo-container">
@@ -19,133 +21,191 @@
             <li><a href="{% url 'index' %}">Home</a></li>
             <li><a href="#" id="donor-link">Donor</a></li>
             <li><a href="#" id="receiver-link">Receivers</a></li>
-            <li><a href="#">Admin</a></li>
+            <li><a href="#" id="admin-link">Admin</a></li>
         </ul>
     </nav>
 
 
-     {% block content %}
-         {% if messages %}
-            <div class="alert-messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
+    {% block content %}
+    {% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endblock %}
+
+
+
+
+    <div id="donor-login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Donor Login</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form id="donor-login-form" method="POST" action="{% url 'login_donor' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-        
-     {% endblock %}
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <div class="form-footer">
+                    <p>New Donor? <a href="{% url 'register_donor' %}">Register here</a></p>
 
-
-
-
- <div id="donor-login-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Donor Login</h2>
-            <span class="close-btn">&times;</span>
+                </div>
+            </form>
         </div>
-        <form id="donor-login-form" method="POST" action="{% url 'login_donor' %}">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter your password">
-            </div>
-            <button type="submit" class="submit-btn">Login</button>
-            <div class="form-footer">
-                <p>New Donor? <a href="{% url 'register_donor' %}">Register here</a></p>
-                
-            </div>
-        </form>
     </div>
-</div>
 
 
 
-<!-- reciver form -->
- <div id="receiver-login-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Receiver Login</h2>
-            <span class="rclose-btn">&times;</span>
+    <!-- reciver form -->
+    <div id="receiver-login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Receiver Login</h2>
+                <span class="rclose-btn">&times;</span>
+            </div>
+            <form id="receiver-login-form" method="POST" action="{% url 'login_receiver' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <div class="form-footer">
+                    <p>New Receiver? <a href="{% url 'register_receiver' %}">Register here</a></p>
+
+                </div>
+            </form>
         </div>
-        <form id="receiver-login-form" method="POST" action="{% url 'login_receiver' %}">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Enter your email">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter your password">
-            </div>
-            <button type="submit" class="submit-btn">Login</button>
-            <div class="form-footer">
-                <p>New Receiver? <a href="{% url 'register_receiver' %}">Register here</a></p>
-                
-            </div>
-        </form>
     </div>
-</div>
 
-<script>
-    // Modal control logic remains the same
-    const donorLink = document.getElementById('donor-link');
-    const modal = document.getElementById('donor-login-modal');
-    const closeBtn = document.querySelector('.close-btn');
-    
-    donorLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        modal.style.display = 'block';
-    });
-    
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) {
+
+
+    <!-- admin form model -->
+    <!-- admin form -->
+    <div id="admin-login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Login</h2>
+                <span class="aclose-btn">&times;</span>
+            </div>
+            <form id="admin-login-form" method="POST" action="{% url 'login_admin' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="admin-email">Email Address</label>
+                    <input type="email" id="admin-email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" name="password" required
+                        placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <div class="form-footer">
+                    <p>New Admin? <a href="{% url 'register_admin' %}">Register here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <!-- donor login script -->
+    <script>
+        // Modal control logic remains the same
+        const donorLink = document.getElementById('donor-link');
+        const modal = document.getElementById('donor-login-modal');
+        const closeBtn = document.querySelector('.close-btn');
+
+        donorLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', function () {
             modal.style.display = 'none';
-        }
-    });
-</script>
+        });
+
+        window.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
 
 
 
-<!-- receiver model control -->
- <script>
-    // Modal control logic remains the same
-    const receiverLink = document.getElementById('receiver-link');
-    const recemodal = document.getElementById('receiver-login-modal');
-    const rececloseBtn = document.querySelector('.rclose-btn');
-    
-    receiverLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        recemodal.style.display = 'block';
-    });
-    
-    rececloseBtn.addEventListener('click', function() {
-        recemodal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', function(e) {
-        if (e.target === recemodal) {
+    <!-- receiver model control -->
+    <script>
+        // Modal control logic remains the same
+        const receiverLink = document.getElementById('receiver-link');
+        const recemodal = document.getElementById('receiver-login-modal');
+        const rececloseBtn = document.querySelector('.rclose-btn');
+
+        receiverLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            recemodal.style.display = 'block';
+        });
+
+        rececloseBtn.addEventListener('click', function () {
             recemodal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function (e) {
+            if (e.target === recemodal) {
+                recemodal.style.display = 'none';
+            }
+        });
+    </script>
+
+
+
+
+    <!-- admin modal control -->
+<script>
+    const adminLink = document.getElementById('admin-link');
+    const adminModal = document.getElementById('admin-login-modal');
+    const adminCloseBtn = document.querySelector('.aclose-btn');
+
+    adminLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        adminModal.style.display = 'block';
+    });
+
+    adminCloseBtn.addEventListener('click', function() {
+        adminModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(e) {
+        if (e.target === adminModal) {
+            adminModal.style.display = 'none';
         }
     });
 </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>
-
-
-

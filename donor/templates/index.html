@@ -156,3 +156,24 @@
     }
 });
 </script>
+
+
+<script>
+        // Wait for the page to fully load
+        window.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+
+            alerts.forEach(alert => {
+                // Set timeout to fade out and remove the message
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 1s ease';
+                    alert.style.opacity = '0';
+
+                    // Remove element after fade-out
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 1000);
+                }, 3000); // 3 seconds delay before fading
+            });
+        });
+    </script>

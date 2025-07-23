@@ -238,6 +238,18 @@ footer {
     color: #333;
 }
 
+
+.aclose-btn {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #777;
+}
+
+.aclose-btn:hover {
+    color: #333;
+}
+
 .form-group {
     margin-bottom: 20px;
 }

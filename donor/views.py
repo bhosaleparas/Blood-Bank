@@ -5,12 +5,17 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
-from .models import Donation,BloodStock,Receiver,BloodRequest
+from .models import Donation,BloodStock,Receiver,BloodRequest,Admin
 from django.core.mail import send_mail
 from datetime import timedelta, date
 from django.utils.dateparse import parse_date
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, redirect
+from django.db.models import Max
+from django.conf import settings
+
+
 
 
 
@@ -438,6 +443,198 @@ def search_blood(request):
     })
     
     
+
+# admin starts
+def register_admin(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        phone = request.POST['phone']
+        password = make_password(request.POST['password'])
+        city=request.POST['city']
+
+        Admin.objects.create(
+            name=name,
+            email=email,
+            phone=phone,            
+            password=password,
+            address=city,
+        )
+        # msg="You registered successfully!"
+        messages.success(request, "You registered successfully! You can Login.")
+        return redirect('index')
+    return render(request,'register_admin.html')
+
+
+
+
+
+def login_admin(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        try:
+            admin = Admin.objects.get(email=email)
+
+            if check_password(password, admin.password):
+                request.session['admin_id'] = admin.id  
+                # send_mail(
+                #     subject='Login Alert - LifeBlood Donor System',
+                #     message=f"Hi {admin.name}, you have successfully logged in.",
+                #     from_email=None,  
+                #     recipient_list=[admin.email],
+                #     fail_silently=False,
+                # )
+                messages.success(request, "Login successful!")
+                return redirect('admin_dashboard') 
+            else:
+                messages.error(request, "Invalid email or password")
+                return redirect('login_admin')
+
+        except Receiver.DoesNotExist:
+            messages.error(request, "Invalid email or password")
+            return redirect('login_admin')
+
+    return redirect(request,'index.html')
+        
+    
+
+
+
+def admin_dashboard(request):
+    admin_id = request.session.get('admin_id')
+    admin = Admin.objects.get(id=admin_id)
+    # Get all donors
+    # donors = Donor.objects.all()
+    donors = Donor.objects.annotate(
+    last_donation_date=Max('donations__donation_date')
+    ).order_by('-last_donation_date')
+    
+    receivers = Receiver.objects.all()
+    
+    blood_stocks = BloodStock.objects.all()
+    
+    donations = Donation.objects.all()
+    
+    receiver_requests = BloodRequest.objects.all()
+    name=admin.name
+    
+    context = {
+        'donors': donors,
+        'receivers': receivers,
+        'blood_stocks': blood_stocks,
+        'donations': donations,
+        'receiver_requests': receiver_requests,
+        'name':name,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+
+def approve_request(request, request_id):
+    if request.method == 'POST':
+        blood_request = get_object_or_404(BloodRequest, id=request_id)
+        
+        # Check if request is already processed
+        if blood_request.status != 'PENDING':
+            messages.warning(request, 'This request has already been processed.')
+            return redirect('admin_dashboard')
+        
+        # Check blood stock availability
+        try:
+            blood_stock = BloodStock.objects.get(
+                blood_type=blood_request.blood_group,
+                hospital_name=blood_request.hospital
+            )
+            
+            if blood_stock.quantity >= blood_request.quantity:
+                # Reduce the blood stock
+                blood_stock.quantity -= blood_request.quantity
+                blood_stock.save()
+                
+                # Update request status
+                blood_request.status = 'APPROVED'
+                blood_request.save()
+                
+                # Send approval email
+                # send_request_status_email(blood_request, is_approved=True)
+                
+                messages.success(request, 'Request approved successfully. Blood stock updated.')
+            else:
+                messages.error(request, 'Insufficient blood stock to fulfill this request.')
+        
+        except BloodStock.DoesNotExist:
+            messages.error(request, 'No blood stock found for this blood type at the specified hospital.')
+        
+        return redirect('admin_dashboard')
+
+def reject_request(request, request_id):
+    if request.method == 'POST':
+        blood_request = get_object_or_404(BloodRequest, id=request_id)
+        
+        # Check if request is already processed
+        if blood_request.status != 'PENDING':
+            messages.warning(request, 'This request has already been processed.')
+            return redirect('admin_dashboard')
+        
+        # Update request status
+        blood_request.status = 'REJECTED'
+        blood_request.save()
+        
+        # Send rejection email
+        # send_request_status_email(blood_request, is_approved=False)
+        
+        messages.success(request, 'Request has been rejected.')
+        return redirect('admin_dashboard')
+
+def send_request_status_email(blood_request, is_approved):
+    subject = "Your Blood Request Status Update"
+    recipient = blood_request.requester.email
+    
+    context = {
+        'receiver_name': blood_request.requester.name,
+        'blood_group': blood_request.blood_group,
+        'quantity': blood_request.quantity,
+        'hospital': blood_request.hospital,
+        'is_approved': is_approved,
+        'reason': blood_request.reason if not is_approved else None,
+    }
+    
+    # Render HTML email template
+    html_message = render_to_string('request_status_update.html', context)
+    plain_message = render_to_string('request_status_update.txt', context)
+    
+    send_mail(
+        subject=subject,
+        message=plain_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[recipient],
+        html_message=html_message,
+    )
+    
+    
+    
+def logout_admin(request):
+    admin_id = request.session.get('admin_id')
+    
+    if admin_id:
+        try:
+            admin = Admin.objects.get(id=admin_id)
+
+            send_mail(
+                subject='Logout Alert - LifeBlood Donor System',
+                message=f"Hi {admin.name}, you have successfully logged out.",
+                from_email=None,
+                recipient_list=[admin.email],
+                fail_silently=False,
+            )
+        except admin.DoesNotExist:
+            pass
+
+    request.session.flush()
+    messages.success(request, "You have been logged out successfully.")
+    return redirect('index')
+
 
 def edit_profile(request):
     return render(request,'footer.html')

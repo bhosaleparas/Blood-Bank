@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LifeBlood</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --blood-red: #d32f2f;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-header {
+            background-color: white;
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px rgba(126, 123, 123, 0.973);
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-card.active {
+            background-color: var(--blood-red);
+            color: white;
+        }
+
+        .data-section {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background-color: var(--blood-red);
+            color: white;
+        }
+
+        .table th {
+            padding: 12px 15px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 12px 15px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+         /* for msges */
+        .alert-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .alert {
+            position: relative;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transform: translateX(0);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Different message type colors */
+        .alert-success {
+            background-color: #4ead51;
+            /* Green */
+            border-left: 5px solid #388E3C;
+        }
+
+        .alert-error {
+            background-color: #F44336;
+            /* Red */
+            border-left: 5px solid #D32F2F;
+        }
+
+        .alert-info {
+            background-color: #2196F3;
+            /* Blue */
+            border-left: 5px solid #1976D2;
+        }
+
+        .alert-warning {
+            background-color: #FFC107;
+            /* Amber */
+            color: #212529;
+            border-left: 5px solid #FFA000;
+        }
+
+        /* Fade out animation */
+        .alert.fade-out {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        /* Close button */
+        .alert-close {
+            margin-left: auto;
+            padding-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #b71c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-tint me-2" style="color: var(--blood-red);"></i> Admin Dashboard</h2>
+                <div>
+                    <span class="me-3">Welcome, <strong>{{name}}</strong></span>
+                    <a href="{% url 'logout_admin' %}" class="btn btn-sm btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="container py-4">
+        <div class="row">
+            <!-- Action Cards -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <div class="card action-card text-center py-3" onclick="showSection('donors')">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <h5 class="mb-0">View Donors</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card action-card text-center py-3" onclick="showSection('receivers')">
+                            <i class="fas fa-hand-holding-heart fa-2x mb-2"></i>
+                            <h5 class="mb-0">View Receivers</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card action-card text-center py-3" onclick="showSection('blood-stock')">
+                            <i class="fas fa-tint fa-2x mb-2"></i>
+                            <h5 class="mb-0">Blood Stock</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card action-card text-center py-3" onclick="showSection('donation-history')">
+                            <i class="fas fa-history fa-2x mb-2"></i>
+                            <h5 class="mb-0">Donation History</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card action-card text-center py-3" onclick="showSection('receiver-requests')">
+                            <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                            <h5 class="mb-0">Receiver Requests</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Sections -->
+            <div class="col-md-12">
+                <!-- Donors Section -->
+                <div id="donors-section" class="data-section">
+                    <h4><i class="fas fa-users me-2"></i> Donors</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Blood Group</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Last Donation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donor in donors %}
+                                <tr>
+                                    <td>{{ donor.id }}</td>
+                                    <td>{{ donor.name }}</td>
+                                    <td>{{ donor.blood_group }}</td>
+                                    <td>{{ donor.email }}</td>
+                                    <td>{{ donor.phone }}</td>
+                                    <td>
+                                        {% if donor.last_donation_date %}
+                                        {{ donor.last_donation_date|date:"M d, Y" }}
+                                        {% else %}
+                                        Never donated
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Receivers Section -->
+                <div id="receivers-section" class="data-section">
+                    <h4><i class="fas fa-hand-holding-heart me-2"></i> Receivers</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Registered On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for receiver in receivers %}
+                                <tr>
+                                    <td>{{ receiver.id }}</td>
+                                    <td>{{ receiver.name }}</td>
+                                    <td>{{ receiver.email }}</td>
+                                    <td>{{ receiver.phone }}</td>
+                                    <!-- <td>{{ receiver.created_at|date:"M d, Y" }}</td> -->
+                                    <td>{{ receiver.date_of_birth}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Blood Stock Section -->
+                <div id="blood-stock-section" class="data-section">
+                    <h4><i class="fas fa-tint me-2"></i> Blood Stock</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Blood Type</th>
+                                    <th>Quantity (ml)</th>
+                                    <th>Hospital</th>
+                                    <th>City</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stock in blood_stocks %}
+                                <tr>
+                                    <td>{{ stock.blood_type }}</td>
+                                    <td>{{ stock.quantity }}</td>
+                                    <td>{{ stock.hospital_name }}</td>
+                                    <td>{{ stock.city }}</td>
+                                    <td>{{ stock.last_updated|timesince }} ago</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Donation History Section -->
+                <div id="donation-history-section" class="data-section">
+                    <h4><i class="fas fa-history me-2"></i> Donation History</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <!-- <th>Donation ID</th> -->
+                                    <th>Donor</th>
+                                    <th>Blood Type</th>
+                                    <th>Quantity</th>
+                                    <th>Hospital</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donation in donations %}
+                                <tr>
+                                    <!-- <td>{{ donation.id }}</td> -->
+                                    <td>{{ donation.donor.name}}</td>
+                                    <td>{{ donation.blood_type }}</td>
+                                    <td>{{ donation.quantity }} ml</td>
+                                    <td>{{ donation.hospital_name }}</td>
+                                    <td>{{ donation.donation_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Receiver Requests Section -->
+                <div id="receiver-requests-section" class="data-section">
+                    <h4><i class="fas fa-clipboard-list me-2"></i> Receiver Requests</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <!-- <th>Request ID</th> -->
+                                    <th>Receiver</th>
+                                    <th>Blood Type</th>
+                                    <th>Quantity</th>
+                                    <th>Hospital</th>
+                                    <th>City</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in receiver_requests %}
+                                <tr>
+                                    <!-- <td>{{ request.id }}</td> -->
+                                    <td>{{ request.requester.name }}</td>
+                                    <td>{{ request.blood_group }}</td>
+                                    <td>{{ request.quantity }} units</td>
+                                    <td>{{ request.hospital }}</td>
+                                    <td>{{request.city}}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ request.status|lower }}">
+                                            {{ request.get_status_display }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if request.status == 'PENDING' %}
+                                        <div class="btn-group btn-group-sm">
+                                            <form method="post" action="{% url 'approve_request' request.id %}"
+                                                style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                            </form>
+                                            <form method="post" action="{% url 'reject_request' request.id %}"
+                                                style="display:inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                            </form>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">No actions</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections first
+            document.querySelectorAll('.data-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Remove active class from all cards
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Show the selected section
+            document.getElementById(`${sectionId}-section`).style.display = 'block';
+
+            // Add active class to clicked card
+            event.currentTarget.classList.add('active');
+        }
+
+        // Show donors section by default
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelector('.action-card').click();
+        });
+    </script>
+
+
+     <!-- this is for messges -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messages = document.querySelectorAll('.alert');
+
+            messages.forEach(message => {
+                //close button
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'alert-close';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.addEventListener('click', () => {
+                    fadeOutMessage(message);
+                });
+                message.appendChild(closeBtn);
+
+                // fade out after 4 seconds
+                const fadeTimer = setTimeout(() => {
+                    fadeOutMessage(message);
+                }, 4000);
+
+                // Pause timer on hover
+                message.addEventListener('mouseenter', () => {
+                    clearTimeout(fadeTimer);
+                });
+
+                // Resume timer 
+                message.addEventListener('mouseleave', () => {
+                    setTimeout(() => {
+                        fadeOutMessage(message);
+                    }, 1000);
+                });
+            });
+
+            function fadeOutMessage(message) {
+                if (!message.classList.contains('fade-out')) {
+                    message.classList.add('fade-out');
+
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

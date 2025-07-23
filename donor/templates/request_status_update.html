@@ -1,0 +1,33 @@
+<!-- templates/emails/request_status_update.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blood Request Status Update</title>
+</head>
+<body>
+    <p>Dear {{ receiver_name }},</p>
+    
+    {% if is_approved %}
+    <p>We are pleased to inform you that your blood request has been <strong>approved</strong>.</p>
+    <p>Details of your request:</p>
+    <ul>
+        <li>Blood Group: {{ blood_group }}</li>
+        <li>Quantity: {{ quantity }} units</li>
+        <li>Hospital: {{ hospital }}</li>
+    </ul>
+    <p>Please contact the hospital for further instructions.</p>
+    {% else %}
+    <p>We regret to inform you that your blood request has been <strong>rejected</strong>.</p>
+    <p>Details of your request:</p>
+    <ul>
+        <li>Blood Group: {{ blood_group }}</li>
+        <li>Quantity: {{ quantity }} units</li>
+        <li>Hospital: {{ hospital }}</li>
+    </ul>
+    <p>Unfortunately, we are unable to fulfill your request at this time.</p>
+    {% endif %}
+    
+    <p>Thank you for using our blood donation service.</p>
+    <p>Sincerely,<br>The LifeBlood Team</p>
+</body>
+</html>

@@ -95,3 +95,17 @@ class BloodRequest(models.Model):
     city = models.CharField(max_length=50)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+
+
+class Admin(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    password=models.CharField(max_length=128)
+
+    def __str__(self):
+        return f"{self.name}"

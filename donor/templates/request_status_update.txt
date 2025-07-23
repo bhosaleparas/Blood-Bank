@@ -1,0 +1,26 @@
+Dear {{ receiver_name }},
+
+{% if is_approved %}
+We are pleased to inform you that your blood request has been APPROVED.
+
+Details of your request:
+- Blood Group: {{ blood_group }}
+- Quantity: {{ quantity }} units
+- Hospital: {{ hospital }}
+
+Please contact the hospital for further instructions.
+{% else %}
+We regret to inform you that your blood request has been REJECTED.
+
+Details of your request:
+- Blood Group: {{ blood_group }}
+- Quantity: {{ quantity }} units
+- Hospital: {{ hospital }}
+
+Unfortunately, we are unable to fulfill your request at this time.
+{% endif %}
+
+Thank you for using our blood donation service.
+
+Sincerely,
+The LifeBlood Team
